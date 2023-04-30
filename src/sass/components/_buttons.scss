@@ -1,0 +1,38 @@
+@use '../abstracts' as *;
+
+.btn {
+    &,
+    &:link,
+    &:visited {
+        font-size: 1.6rem;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 1rem 4rem;
+        display: inline-block;
+        position: relative;
+        border-radius: .3rem;
+        transition: all .2s;
+
+        // Changes for button elements
+        border: none;
+        cursor: pointer;
+    }
+
+    &:hover {
+        transform: translateY(-.3rem);
+        box-shadow: 0 .1rem 2rem rgba($color-black, .2);
+    }
+
+    &:active,
+    &:focus {
+        outline: none;
+        transform: translateY(-.1rem);
+        box-shadow: 0 .5rem 1rem rgba($color-black, .2);
+    }
+
+    &--default {
+        color: $color-font-primary;
+        background-color: #aac6fc;
+        border-radius: 5rem !important;
+    }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "holy-sheet",
+  "version": "1.0.0",
+  "description": "Holy Sheet is a plugin for fetching data from Google Sheets",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build && cp src/js/plugins/HolySheet.js plugin/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sassyelements/holy-sheet.git"
+  },
+  "author": "https://github.com/0xkhan",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/sassyelements/holy-sheet/blob/master/LICENSE"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/sassyelements/holy-sheet/issues"
+  },
+  "homepage": "https://github.com/sassyelements/holy-sheet#readme",
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.8.3",
+    "parcel": "^2.8.3"
+  }
+}
