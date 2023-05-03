@@ -2,13 +2,13 @@ export default class HolySheet {
 
     #options;
     #sheetURL;
-    #sheetBaseURL = 'https://docs.google.com/spreadsheets/d/';
-    #sheetDataTypeJSON = '/gviz/tq?tqx=out:json&headers=1';
+    #sheetBaseURL;
+    #sheetDataType;
 
     constructor(config) {
         this.#options = {
             sheetId: "",
-            sheetTitle: "",
+            sheetName: "",
             sheetRange: "",
             dataType: 'json',
         }
@@ -32,26 +32,29 @@ export default class HolySheet {
      * Sets the correct URL based on user input
      */
     setSheetURL() {
-        if (this.#options.sheetTitle.length !== 0 &&
+        this.#sheetBaseURL = 'https://docs.google.com/spreadsheets/d/';
+        this.#sheetDataType = `/gviz/tq?tqx=out:${this.#options.dataType}&headers=1`;
+
+        if (this.#options.sheetName.length !== 0 &&
             this.#options.sheetRange.length === 0) {
             this.#sheetURL  = this.#sheetBaseURL
                             + this.#options.sheetId
-                            + this.#sheetDataTypeJSON
+                            + this.#sheetDataType
                             + '&sheet='
-                            + this.#options.sheetTitle;
-        } else if (this.#options.sheetTitle.length !== 0 &&
+                            + encodeURIComponent(this.#options.sheetName);
+        } else if (this.#options.sheetName.length !== 0 &&
             this.#options.sheetRange.length !== 0) {
             this.#sheetURL  = this.#sheetBaseURL
                             + this.#options.sheetId
-                            + this.#sheetDataTypeJSON
+                            + this.#sheetDataType
                             + '&sheet='
-                            + this.#options.sheetTitle
+                            + encodeURIComponent(this.#options.sheetName)
                             + '&range='
                             + this.#options.sheetRange;
         } else {
             this.#sheetURL  = this.#sheetBaseURL
                             + this.#options.sheetId
-                            + this.#sheetDataTypeJSON;
+                            + this.#sheetDataType;
         }
     }
 
@@ -77,9 +80,12 @@ export default class HolySheet {
             ]);
             const dataText = await response.text();
             // const data = JSON.parse(dataText.slice(47, -2));
-            const dataJSON = JSON.parse(dataText.match(/(?<=.*\().*(?=\);)/s));
-            const data = this.#parseJSON(dataJSON);
-            return data;
+            if (this.#options.dataType === 'csv') {
+                return dataText;
+            } else {
+                const dataJSON = JSON.parse(dataText.match(/(?<=.*\().*(?=\);)/s));
+                return  this.#parseObject(dataJSON);
+            }
         } catch(err) {
             throw err;
         }
@@ -91,7 +97,7 @@ export default class HolySheet {
      * @param {Object} data
      * @return {Array} dataObjectsArray
      */
-    #parseJSON(data) {
+    #parseObject(data) {
         let cellData, propName, dataObject;
         const dataObjectsArray = [];
         const cols = data.table.cols;
@@ -107,6 +113,9 @@ export default class HolySheet {
 
                 if (cellData === null) {
                     dataObject[propName] = "";
+                } else if (typeof cellData["v"] == "string" && cellData["v"].startsWith("Date")) {
+                    // dataObject[propName] = new Date(cellData["f"]);
+                    dataObject[propName] = cellData["f"];
                 } else {
                     dataObject[propName] = cellData["v"];
                 }
@@ -129,14 +138,22 @@ export default class HolySheet {
         let prop, propPieces;
 
         for (let i = 0; i < props.length; i++) {
-            prop = props[i].label.toLowerCase();
-            propPieces = prop.split(/[- ]+/);
+            prop = props[i].label;
 
-            propPieces = propPieces.map((prop, i) => {
-                return (i > 0) ? prop.charAt(0).toUpperCase() + prop.slice(1) : prop;
-            });
+            if (prop.includes(" ") || prop.includes("-")) {
+                prop = props[i].label.toLowerCase();
+                propPieces = prop.split(/[- ]+/);
 
-            propsArray.push(propPieces.join(''));
+                propPieces = propPieces.map((prop, i) => {
+                    return (i > 0) ? prop.charAt(0).toUpperCase() + prop.slice(1) : prop;
+                });
+
+                propsArray.push(propPieces.join(''));
+            } else if (Boolean(prop.match(/\b([A-Z])/))) {
+                propsArray.push(prop.toLowerCase());
+            } else {
+                propsArray.push(prop);
+            }
         }
 
         return propsArray;
