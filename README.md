@@ -27,6 +27,8 @@ Built in 1.60s
 
 Visit `http://localhost:1234` to see the result. Your port may not be `1234`!
 
+For testing you can use this [demo sheet](https://docs.google.com/spreadsheets/d/1hxrpqGnVjs9efoq-eblYm8M3AHMDY9Q6vOihvHRxdZg/edit#gid=1460352599).
+
 ## How to Use Holy Sheet
 
 First you need to get the plugin file `HolySheet.js`. Copy it to your JS
